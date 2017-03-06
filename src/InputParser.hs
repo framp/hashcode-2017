@@ -1,19 +1,20 @@
 module InputParser where
 
 import qualified Data.ByteString as BS
+import qualified Data.IntMap as IntMap
 import Data.Attoparsec.ByteString.Char8
-import Type
+import qualified Type as T
 
-parseState :: Parser State
+parseState :: Parser T.State
 parseState = do
         metadata <- parseMetadata
         videos <- parseVideos
         endpoints <- many' parseEndpoint
         requests <- many' parseRequest
-        let caches = map (\n -> cacheSize metadata) [0..(cachesNumber metadata)]
-        return $ State metadata videos endpoints requests caches []
+        let caches = map (\n -> (n, T.cacheSize metadata)) [0..(T.cachesNumber metadata)]
+        return $ T.State metadata videos endpoints requests caches IntMap.empty
 
-parseMetadata :: Parser Metadata
+parseMetadata :: Parser T.Metadata
 parseMetadata = do
         videosNumber <- decimal
         char ' '
@@ -25,22 +26,22 @@ parseMetadata = do
         char ' '
         cacheSize <- decimal
         char '\n'
-        return $ Metadata videosNumber endpointsNumber requestsNumber cachesNumber cacheSize
+        return $ T.Metadata videosNumber endpointsNumber requestsNumber cachesNumber cacheSize
 
-parseVideos :: Parser [Video]
+parseVideos :: Parser [T.Video]
 parseVideos = do
         videos <- decimal `sepBy` (char ' ')
         char '\n'
         return videos
 
-parseEndpoint :: Parser Endpoint
+parseEndpoint :: Parser T.Endpoint
 parseEndpoint = do
         datacenterLatency <- decimal
         char ' '
         cacheNumber <- decimal
         char '\n'
         caches <- count cacheNumber parseEndpointCache
-        return $ Endpoint datacenterLatency caches
+        return $ T.Endpoint datacenterLatency caches
 
 parseEndpointCache :: Parser (Int, Int)
 parseEndpointCache = do
@@ -50,7 +51,7 @@ parseEndpointCache = do
         char '\n'
         return $ (id, latency)
 
-parseRequest :: Parser Request
+parseRequest :: Parser T.Request
 parseRequest = do
         video <- decimal
         char ' '
@@ -58,10 +59,10 @@ parseRequest = do
         char ' '
         size <- decimal
         char '\n'
-        return $ Request size video endpoint
+        return $ T.Request size video endpoint
 
-parse :: BS.ByteString -> State
+parse :: BS.ByteString -> T.State
 parse content = either (const emptyState) id $ parseOnly parseState content
 
-emptyState :: State
-emptyState = State (Metadata 0 0 0 0 0) [] [] [] [] []
+emptyState :: T.State
+emptyState = T.State (T.Metadata 0 0 0 0 0) [] [] [] [] IntMap.empty

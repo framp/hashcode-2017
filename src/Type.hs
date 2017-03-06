@@ -1,14 +1,15 @@
 {-# LANGUAGE DuplicateRecordFields #-}
-
 module Type where
+
+import qualified Data.IntMap as IntMap
 
 data State = State 
         { metadata :: Metadata 
         , videos :: [Video]
         , endpoints :: [Endpoint]
         , requests :: [Request]
-        , caches :: [Cache]
-        , allocations :: [Allocation] } deriving (Show)
+        , caches :: [(CacheIndex, Cache)]
+        , allocations :: IntMap.IntMap [VideoIndex] } deriving (Show)
 
 data Metadata = Metadata 
         { videosNumber :: Int
@@ -23,15 +24,21 @@ data Endpoint = Endpoint
 
 data Request = Request
         { size :: Int
-        , video :: Video
-        , endpoint :: EndpointIndex } deriving (Show)
+        , videoIndex :: VideoIndex
+        , endpointIndex :: EndpointIndex } deriving (Show)
 
-data Allocation = Allocation 
-        { video :: Video 
-        , cache :: CacheIndex } deriving (Show)
+data Problem = Problem
+        { cacheIndex :: CacheIndex
+        , score :: Score
+        , requestIndex :: RequestIndex
+        , videoIndex :: VideoIndex 
+        , video :: Video }
 
 type Video = Int
 type Latency = Int
 type Cache = Int
+type Score = Float
+type RequestIndex = Int
+type VideoIndex = Int
 type CacheIndex = Int
 type EndpointIndex = Int
