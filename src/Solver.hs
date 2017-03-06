@@ -2,7 +2,6 @@
 module Solver where
 
 import Data.List (sortOn)
-import Debug.Trace
 import qualified Data.IntMap as IntMap
 import qualified Type as T
 
