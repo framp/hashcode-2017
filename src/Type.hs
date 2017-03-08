@@ -8,7 +8,6 @@ data State = State
         , videos :: [Video]
         , endpoints :: [Endpoint]
         , requests :: [Request]
-        , caches :: [(CacheIndex, Cache)]
         , allocations :: IntMap.IntMap [VideoIndex] } deriving (Show)
 
 data Metadata = Metadata 

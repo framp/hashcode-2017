@@ -23,10 +23,15 @@ makeAllocations state =
   let 
     problems = foldl (++) [] $ map (makeProblems state) $ zip [0..] (T.requests state)
     sortByScore = sortOn $ (* (-1)) . T.score
-    --TODO: Check videoSize against cacheSize
-    solveProblem problem = IntMap.insertWith (++) (T.cacheIndex problem) [T.videoIndex (problem :: T.Problem)] 
+    videos = T.videos state
+    cacheSize = T.cacheSize $ T.metadata state
+    getSize cacheIndex allocations = foldl (+) 0 $ map ((!!) videos) $ IntMap.findWithDefault [] cacheIndex allocations
+    solveProblem allocations problem
+      | getSize (T.cacheIndex problem) allocations <= cacheSize - (T.video problem) = 
+        IntMap.insertWith (++) (T.cacheIndex problem) [T.videoIndex (problem :: T.Problem)] allocations
+      | otherwise = allocations
   in 
-    foldl (flip solveProblem) IntMap.empty (sortByScore problems)
+    foldl solveProblem IntMap.empty (sortByScore problems)
 
 solve :: T.State -> T.State
 solve state = state { T.allocations = makeAllocations state }

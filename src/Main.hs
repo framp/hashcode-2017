@@ -12,4 +12,4 @@ main :: IO ()
 main = do  
         args <- getArgs
         content <- BS.readFile $ args !! 0
-        print . encode . solve . parse $ content
+        putStr . encode . solve . parse $ content

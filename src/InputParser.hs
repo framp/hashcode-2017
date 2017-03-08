@@ -11,8 +11,7 @@ parseState = do
         videos <- parseVideos
         endpoints <- many' parseEndpoint
         requests <- many' parseRequest
-        let caches = map (\n -> (n, T.cacheSize metadata)) [0..(T.cachesNumber metadata)]
-        return $ T.State metadata videos endpoints requests caches IntMap.empty
+        return $ T.State metadata videos endpoints requests IntMap.empty
 
 parseMetadata :: Parser T.Metadata
 parseMetadata = do
@@ -65,4 +64,4 @@ parse :: BS.ByteString -> T.State
 parse content = either (const emptyState) id $ parseOnly parseState content
 
 emptyState :: T.State
-emptyState = T.State (T.Metadata 0 0 0 0 0) [] [] [] [] IntMap.empty
+emptyState = T.State (T.Metadata 0 0 0 0 0) [] [] [] IntMap.empty

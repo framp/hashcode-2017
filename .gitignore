@@ -1,2 +1,5 @@
+*.hi
+*.o
 .vscode
 .DS_store
+hashcode
